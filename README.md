@@ -34,7 +34,7 @@ Scripts are provided in all project directories for use with independent resourc
 -Docker <br/>
 
 ###### For all Kubernetes-related resources:
--kubectl(configure kubectl to your cluster if it was not created by the provided scripts) <br/>
+-kubectl <br/>
 
 ###### Unless running on a cluster or VM independent of GCP:
 -Google Cloud SDK <br/>
@@ -44,8 +44,12 @@ Scripts are provided in all project directories for use with independent resourc
 -A Google Cloud Platform project and service account key with access to it <br/>
 
 ###### Only for terraform-gcp-harbor-helm directory:
--Helm <br/> <br/>
+-Helm <br/>
 
+###### If using resources independent of Terraform:
+-configure kubectl to point to your cluster <br/>
+
+-SSH access to your VM <br/> <br/>
 
 
 ## Guides <br/> <br/>
@@ -68,4 +72,4 @@ Step 3: Run terraform apply -var-file=./states/harbor-master.tfvars
 ###### Note: If Terraform gets stuck for more than 2 mins or an error occurs during the local-exec step, ctrl+C out of the terraform apply, and run bash ./resources/local-setup-provisioned.sh to re-try the local-exec step <br/> <br/>
 
 Step 4: Attempt to access your Harbor URL from the internet
-###### Note: You will need to bypass the error that will come up about insecure https certificates. This error occurs because the cert was self-signed on the instance that was created. You can look at this code in resources/dockerce-harbor-master-install-V2.sh(the script run remotely on the instance) <br/> <br/>
+###### Note: You will need to bypass the error that will come up about an insecure https certificate. This error occurs because the cert was self-signed on the instance that was created. You can look at this code in resources/dockerce-harbor-master-install-V2.sh(the script run remotely on the instance) <br/> <br/>
