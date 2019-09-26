@@ -4,16 +4,19 @@ data "template_file" "install-config-ip" {
     template = "${file("${var.configfile}")}"
     
     vars = {
-        host-ip = "${var.hostname}"
+        hostname = "${var.hostname}"
     }
 }
 
-data "template_file" "install-command-ip" {
+data "template_file" "local-setup" {
     
-    template = "${file("${var.commandfile}")}"
+    template = "${file("${var.local-setup}")}"
     
     vars = {
         host-ip = "${google_compute_instance.harbor.network_interface.0.access_config.0.nat_ip}"
+        user = "${var.ssh_user}"
+        private-key-path = "${var.ssh_private_key}"
+        hostname = "${var.hostname}"
     }
 }
 
@@ -33,7 +36,7 @@ resource "google_compute_instance" "harbor" {
         network = "${var.network}"
         subnetwork = "${var.subnet}"
         access_config {
-            # nat_ip is here
+            # nat_ip(ephemeral IP) exists here once Terraform applies
         }
     }
 
@@ -42,13 +45,15 @@ resource "google_compute_instance" "harbor" {
     }
 }
 
-# installs Harbor and other necessary tools
+# installs Harbor and the necessary tools to install it
 resource "null_resource" "install-harbor" {
     
+    depends_on = [google_compute_instance.harbor]
+
     connection {
             type = "ssh"
             host = "${google_compute_instance.harbor.network_interface.0.access_config.0.nat_ip}"
-            user = "alexsnow"
+            user = "${var.ssh_user}"
             private_key = "${file("${var.ssh_private_key}")}"
     }
     provisioner "file" {
@@ -56,14 +61,24 @@ resource "null_resource" "install-harbor" {
         destination = "/tmp/harbor-config.yml"
     }
     provisioner "file" {
-        content = "${data.template_file.install-command-ip.rendered}"
+        source = "${var.commandfile}"
         destination = "/tmp/run-command.sh"
     }
     provisioner "remote-exec" {
         inline = [
-            # uses the file from the other provisioner to install docker and download harbor
+            # uses the file from the other provisioner to install docker and harbor
             "sudo chmod 755 /tmp/run-command.sh",
             "sudo /tmp/run-command.sh",
         ]
     }
+}
+
+resource "null_resource" "local-setup" {
+
+    depends_on = [null_resource.install-harbor]
+
+    provisioner "local-exec" {
+        command = "echo '${data.template_file.local-setup.rendered}' > resources/local-setup-provisioned.sh && bash resources/local-setup-provisioned.sh"
+    }
+
 }

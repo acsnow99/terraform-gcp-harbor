@@ -15,6 +15,10 @@ variable "commandfile" {
     description = "File with instructions on how to install Harbor and other tools, plus any additional instructions after install"
 }
 
+variable "local-setup" {
+    description = "File run locally to set up Harbor connectivity"
+}
+
 variable "machine" {
     description = "Type of GCP machine to create the node on"
     default = "n1-standard-4"

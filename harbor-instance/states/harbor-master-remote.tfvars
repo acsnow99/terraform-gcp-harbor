@@ -1,3 +1,4 @@
+# tfvars used when terraform-gcp-harbor-build is run
 prefix = "harbor-ubuntu-managed"
 node_count = "1"
 commandfile = "resources/dockerce-harbor-master-install-V2.sh"

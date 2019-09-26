@@ -20,6 +20,9 @@ variable "machine" {
 variable "commandfile" {
     type = "string"
 }
+variable "local-setup" {
+    description = "Script run locally to set up Harbor connectivity"
+}
 variable "configfile" {
     type = "string"
     description = "File Harbor looks at when installing. Titled 'harbor.yml' when Harbor is downloaded"

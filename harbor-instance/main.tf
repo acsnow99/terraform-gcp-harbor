@@ -22,6 +22,7 @@ module "harbor-instance" {
     prefix = "${var.prefix}-harbor"
     image = "${var.image}"
     commandfile = "${var.commandfile}"
+    local-setup = "${var.local-setup}"
     machine = "${var.machine}"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
