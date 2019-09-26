@@ -1,48 +1,48 @@
 # Deployment of Harbor through Terraform on GCP
 
-This project's purpose was to deploy Harbor Image Registry in GCP using compute instances and Kubernetes clusters. 
+This project's purpose was to deploy Harbor Image Registry in GCP using compute instances and Kubernetes clusters. <br/>
 
-Below is a list of the environments I succeeded in deploying Harbor to, and their corresponding directories in this repo:
+Below is a list of the environments I succeeded in deploying Harbor to, and their corresponding directories in this repo: <br/>
 
--GKE clusters(terraform-gcp-harbor-helm)
+-GKE clusters(terraform-gcp-harbor-helm) <br/>
 
--Independent Kubernetes clusters(also terraform-gcp-harbor-helm)
+-Independent Kubernetes clusters(also terraform-gcp-harbor-helm) <br/>
 
--Stand-alone compute instance(harbor-instance)
+-Stand-alone compute instance(harbor-instance) <br/>
 
--Compute instance set up by another compute instance in order to provide a level of separation from the user(terraform-gcp-harbor-build)
-
-
-The other part of this project was automating the deployment of Minecraft servers using Docker and Kubernetes, with some integration with Harbor(as a demo of Harbor's functionalities).
-
-Below is a list of the environments I succeeded in deploying Minecraft servers to, and their corresponding directories in this repo:
-
--Kubernetes(mc-kube-demo)
-
--Docker on a compute instance(mc-docker-demo)
+-Compute instance set up by another compute instance in order to provide a level of separation from the user(terraform-gcp-harbor-build) <br/> <br/>
 
 
-Scripts are provided in all project directories for use with independent resources(your own cluster or VM)
+The other part of this project was automating the deployment of Minecraft servers using Docker and Kubernetes, with some integration with Harbor(as a demo of Harbor's functionalities). <br/>
+
+Below is a list of the environments I succeeded in deploying Minecraft servers to, and their corresponding directories in this repo: <br/>
+
+-Kubernetes(mc-kube-demo) <br/>
+
+-Docker on a compute instance(mc-docker-demo) <br/> <br/>
+
+
+Scripts are provided in all project directories for use with independent resources(your own cluster or VM) <br/> <br/> <br/>
 
 
 
-## Getting Started
+## Getting Started <br/>
 
-### Dependencies:
+### Dependencies: <br/>
 
 ###### For all Harbor-related resources and mc-docker-demo:
--Docker
+-Docker <br/>
 
 ###### For all Kubernetes-related resources:
--kubectl(configured to your cluster if not created by the provided scripts)
+-kubectl(configured to your cluster if not created by the provided scripts) <br/>
 
 ###### Unless running on a cluster or VM independent of GCP:
--Google Cloud SDK
+-Google Cloud SDK <br/>
 
--Terraform
+-Terraform <br/>
 
--A Google Cloud Platform project and service account key with access to it
+-A Google Cloud Platform project and service account key with access to it <br/>
 
 ###### Only for terraform-gcp-harbor-helm directory:
--Helm
+-Helm <br/> <br/>
 
