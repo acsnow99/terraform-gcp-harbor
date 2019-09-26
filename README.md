@@ -1,5 +1,3 @@
-<pre>
-
 #Deployment of Harbor through Terraform on GCP
 
 This project's purpose was to deploy Harbor Image Registry in GCP using compute instances and Kubernetes clusters. 
@@ -48,5 +46,3 @@ Scripts are provided in all project directories for use with independent resourc
 ######Only for terraform-gcp-harbor-helm directory:
 -Helm
 
-
-<pre>
