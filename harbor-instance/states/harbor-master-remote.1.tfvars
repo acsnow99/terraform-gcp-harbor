@@ -1,0 +1,6 @@
+prefix = "harbor-ubuntu-managed-single"
+node_count = "1"
+commandfile = "resources/dockerce-harbor-master-install.sh"
+configfile = "resources/harbor-master.yml"
+credentials-file = "~/terraform_harbor/terraform_key.json"
+ssh_user = "alexsnow"

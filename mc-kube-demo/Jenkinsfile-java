@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    environment {
+        HARBOR_ADDRESS = ""
+        //172.21.6.192/
+        KUBECONFIG_PATH = "/root/.kube/sa-config-test"
+        //~/.kube/kubeconfig-harbor-tenant.yaml
+        NAMESPACE = "default"
+        //minecraft
+        RELEASE = "1.14.4"
+    SERVERTYPE = "VANILLA"
+    MODPACK = ""
+    WORLDNAME = "Jenkinte"
+    GAMEMODE = "1"
+    DOCKER_REPO="${HARBOR_ADDRESS}itzg/minecraft-server"
+    }
+    stages {
+        stage('Build') {
+            steps {
+        echo 'Build stuff'
+        sh "bash ./Jenkins-java/resources/provision-jenkins.sh"
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Run your test scripts here.'
+            }
+        }
+        stage('Deploy') {
+            steps {
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f Jenkins-java/resources/deployment.yaml"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f Jenkins-java/resources/pvc-deployment.yaml || true"
+        sh 'kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE get pods'
+            }
+        }
+        stage('Server Setup') {
+            steps {
+        sh "sleep 45"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE cp ./Jenkins-java/resources/server.properties.provisioned mc-server-pod-java:/data/server.properties"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE exec mc-server-pod-java chmod 777 server.properties"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE delete pod mc-server-pod-java"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f ./Jenkins-java/resources/deployment.yaml"
+            }
+        }
+    }
+}
