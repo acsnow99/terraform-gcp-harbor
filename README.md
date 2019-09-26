@@ -1,4 +1,4 @@
-#Deployment of Harbor through Terraform on GCP
+# Deployment of Harbor through Terraform on GCP
 
 This project's purpose was to deploy Harbor Image Registry in GCP using compute instances and Kubernetes clusters. 
 
@@ -26,23 +26,23 @@ Scripts are provided in all project directories for use with independent resourc
 
 
 
-##Getting Started
+## Getting Started
 
-###Dependencies:
+### Dependencies:
 
-######For all Harbor-related resources and mc-docker-demo:
+###### For all Harbor-related resources and mc-docker-demo:
 -Docker
 
-######For all Kubernetes-related resources:
+###### For all Kubernetes-related resources:
 -kubectl(configured to your cluster if not created by the provided scripts)
 
-######Unless running on a cluster or VM independent of GCP:
+###### Unless running on a cluster or VM independent of GCP:
 -Google Cloud SDK
 
 -Terraform
 
 -A Google Cloud Platform project and service account key with access to it
 
-######Only for terraform-gcp-harbor-helm directory:
+###### Only for terraform-gcp-harbor-helm directory:
 -Helm
 
