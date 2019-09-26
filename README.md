@@ -1,27 +1,71 @@
-<pre>
-Welcome to a compilation of resources for building Harbor in various environments, including:
+# Deployment of Harbor through Terraform on GCP
 
--GKE clusters(terraform-gcp-harbor-helm)
+This project's purpose was to deploy Harbor Image Registry in GCP using compute instances and Kubernetes clusters. <br/>
 
--GCP compute engine VMs(terraform-gcp-harbor-build/harbor-instance)
+Below is a list of the environments I succeeded in deploying Harbor to, and their corresponding directories in this repo: <br/>
 
--Independent Kubernetes clusters(also terraform-gcp-harbor-helm)
+-GKE clusters(terraform-gcp-harbor-helm) <br/>
 
+-Independent Kubernetes clusters(also terraform-gcp-harbor-helm) <br/>
 
-There are also two options for deploying Minecraft servers automatically:
+-Stand-alone compute instance(harbor-instance) <br/>
 
--In Kubernetes(mc-kube-demo)
-
--In Docker on a GCP VM(mc-docker-demo)
+-Compute instance set up by another compute instance in order to provide a level of separation from the user(terraform-gcp-harbor-build) <br/> <br/>
 
 
-Dependencies:
+The other part of this project was automating the deployment of Minecraft servers using Docker and Kubernetes, with some integration with Harbor(as a demo of Harbor's functionalities). <br/>
 
--Google Cloud SDK(unless running on independent cluster or VM)
+Below is a list of the environments I succeeded in deploying Minecraft servers to, and their corresponding directories in this repo: <br/>
 
--Terraform
+-Kubernetes(mc-kube-demo) <br/>
 
--A Google Cloud Platform project and service account key with access to it(unless running on independent cluster or VM)
+-Docker on a compute instance(mc-docker-demo) <br/> <br/>
 
--Helm
-<pre>
+
+Scripts are provided in all project directories for use with independent resources(your own cluster or VM) <br/> <br/> <br/>
+
+
+
+## Getting Started <br/>
+
+### Dependencies: <br/>
+
+###### For all Harbor-related resources and mc-docker-demo:
+-Docker <br/>
+
+###### For all Kubernetes-related resources:
+-kubectl(configure kubectl to your cluster if it was not created by the provided scripts) <br/>
+
+###### Unless running on a cluster or VM independent of GCP:
+-Google Cloud SDK <br/>
+
+-Terraform <br/>
+
+-A Google Cloud Platform project and service account key with access to it <br/>
+
+###### Only for terraform-gcp-harbor-helm directory:
+-Helm <br/> <br/>
+
+
+
+## Guides <br/> <br/>
+
+### harbor-instance <br/> 
+
+As basic as it gets in this repo, this directory has resources to set up Harbor as quickly as possible on a VM.  <br/>
+
+##### Note: '.' represents 'harbor-instance' in all path definitions in the tutorials. cd into harbor-instance for these tutorials <br/>
+
+#### Deploying Harbor to GCP using Terraform(requires GCP account) <br/>
+
+Step 1: Edit ./states/harbor-master.tfvars to fit your GCP configuration <br/> <br/>
+
+Step 2: Take a look at /etc/hosts and make sure you don't have any entries for the Harbor URL you chose. Multiple entries would confuse your computer later on when trying to access Harbor. Either delete existing entries or choose a different URL for your Harbor instance in the .tfvars file. 
+###### Note: the scripts that Terraform runs will make an edit to your /etc/hosts file. It will make a copy beforehand, so if something goes wrong with that file, the copy will be located under ./hosts-copy <br/> <br/>
+
+Step 3: Run terraform apply -var-file=./states/harbor-master.tfvars
+
+###### Note: If Terraform gets stuck for more than 2 mins or an error occurs during the local-exec step, ctrl+C out of the terraform apply, and run bash ./resources/local-setup-provisioned.sh to re-try the local-exec step <br/> <br/>
+
+Step 4: Attempt to access your Harbor URL from the internet
+###### Note: You will need to bypass the error that will come up about insecure https certificates. This error occurs because the cert was self-signed on the instance that was created. You can look at this code in resources/dockerce-harbor-master-install-V2.sh(the script run remotely on the instance) <br/> <br/>
