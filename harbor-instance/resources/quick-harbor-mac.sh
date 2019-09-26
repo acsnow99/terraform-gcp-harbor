@@ -8,12 +8,12 @@ scp -i $privatekey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -
 
 # trust the cert
 sudo mkdir ~/.docker/certs.d
-sudo mkdir ~/.docker/certs.d/core.harbor.domain
-sudo mv ca.crt ~/.docker/certs.d/core.harbor.domain/ca.crt
+sudo mkdir ~/.docker/certs.d/$hostname
+sudo mv ca.crt ~/.docker/certs.d/$hostname/ca.crt
 
 
 sudo cp /etc/hosts ./hosts-copy
-echo "$ip core.harbor.domain" | sudo tee -a /etc/hosts
+echo "$ip ${hostname}" | sudo tee -a /etc/hosts
 
 killall Docker && open /Applications/Docker.app
 

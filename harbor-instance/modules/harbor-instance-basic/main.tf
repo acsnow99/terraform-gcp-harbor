@@ -8,6 +8,15 @@ data "template_file" "install-config-ip" {
     }
 }
 
+data "template_file" "commandfile" {
+    
+    template = "${file("${var.commandfile}")}"
+
+    vars = {
+        hostname = "${var.hostname}"
+    }
+}
+
 data "template_file" "local-setup" {
     
     template = "${file("${var.local-setup}")}"

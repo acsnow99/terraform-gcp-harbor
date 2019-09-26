@@ -11,7 +11,7 @@ sudo update-ca-certificates
 sudo service docker restart
 
 sudo cp /etc/hosts ./hosts-copy
-echo "$ip core.harbor.domain" | sudo tee -a /etc/hosts
+echo "$ip $hostname" | sudo tee -a /etc/hosts
 
 sleep 60
 
