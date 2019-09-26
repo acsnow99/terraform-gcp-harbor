@@ -1,3 +1,4 @@
+<pre>
 Welcome to a compilation of resources for building Harbor in various environments, including:
 
 -GKE clusters(terraform-gcp-harbor-helm)
@@ -23,3 +24,4 @@ Dependencies:
 -A Google Cloud Platform project and service account key with access to it(unless running on independent cluster or VM)
 
 -Helm
+<pre>
