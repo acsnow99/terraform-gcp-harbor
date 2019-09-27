@@ -27,7 +27,7 @@ variable "image" {
 }
 variable "machine" {
     description = "Type of GCP machine to make the nodes on"
-    default = "n1-standard-4"
+    default = "n1-standard-2"
 }
 
 variable "commandfile" {

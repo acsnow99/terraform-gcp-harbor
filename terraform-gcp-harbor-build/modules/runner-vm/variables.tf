@@ -19,7 +19,7 @@ variable "commandfile" {
 
 variable "machine" {
     description = "Type of GCP machine to create the node on"
-    default = "n1-standard-4"
+    default = "n1-standard-2"
 }
 
 variable "layer-1" {

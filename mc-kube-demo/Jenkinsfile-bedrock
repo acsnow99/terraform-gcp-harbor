@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
             steps {
         echo 'Build stuff'
-        sh "bash ./Jenkins-bedrock/resources/provision-jenkins.sh"
+        sh "bash ./mc-kube-demo/Jenkins-bedrock/resources/provision-jenkins.sh"
             }
         }
         stage('Test') {
@@ -28,8 +28,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f Jenkins-bedrock/resources/deployment.yaml"
-        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f Jenkins-bedrock/resources/pvc-deployment.yaml || true"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f mc-kube-demo/Jenkins-bedrock/resources/deployment.yaml"
+        sh "kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE apply -f mc-kube-demo/Jenkins-bedrock/resources/pvc-deployment.yaml || true"
         sh 'kubectl --kubeconfig $KUBECONFIG_PATH -n $NAMESPACE get pods'
             }
         }

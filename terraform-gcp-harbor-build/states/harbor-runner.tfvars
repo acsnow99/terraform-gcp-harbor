@@ -7,9 +7,11 @@ credentials-file = "~/terraform/terraform_keys/terraform-gcp-harbor-2-45311dea30
 # this means the resulting machine will automatically run the script provided under commandfile
 layer-2 = "1"
 
-gcp-service-key = "~/Downloads/terraform-gcp-harbor-2-72245571699e.json"
+gcp-service-key = "~/terraform/terraform_keys/terraform-gcp-harbor-2-45311dea3003.json"
 
 project = "terraform-gcp-harbor-2"
 
 network = "default"
 subnet = "default"
+
+machine = "n1-standard-2"
