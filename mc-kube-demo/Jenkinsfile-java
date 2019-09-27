@@ -1,12 +1,11 @@
 pipeline {
     agent any
     environment {
-        HARBOR_ADDRESS = ""
-        //172.21.6.192/
-        KUBECONFIG_PATH = "/root/.kube/sa-config-test"
-        //~/.kube/kubeconfig-harbor-tenant.yaml
-        NAMESPACE = "default"
-        //minecraft
+        HARBOR_ADDRESS = "172.21.6.192/"
+        KUBECONFIG_PATH = "~/.kube/kubeconfig-harbor-tenant.yaml"
+        ///root/.kube/sa-config-test
+        NAMESPACE = "minecraft"
+        //default
         RELEASE = "1.14.4"
     SERVERTYPE = "VANILLA"
     MODPACK = ""
