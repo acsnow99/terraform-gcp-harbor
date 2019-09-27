@@ -52,7 +52,7 @@ Scripts are provided in all project directories for use with independent resourc
 -SSH access to your VM <br/> <br/>
 
 
-## Guides <br/> <br/>
+## Guides <br/> 
 
 ### harbor-instance <br/> 
 
