@@ -16,6 +16,6 @@ Step 3: Copy and edit './states/harbor-runner.tfvars' to fit your GCP configurat
 
 Step 4: Copy and edit './resources/harbor-master-remote.tfvars' as well to fit your GCP configuration(this is the .tfvars file that will be used to deploy the second VM
 
-Step 5: Run 'terraform apply -var-file=resources/{{your-file}}.tfvars'
+Step 5: Run 'terraform init' and 'terraform apply -var-file=resources/{{your-file}}.tfvars'
 
 ### No method exists yet to deploy through an existing VM; I recommend SSH-ing into your VM, cloning this repo, and running the code found in '../harbor-instance'
