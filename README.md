@@ -22,9 +22,9 @@ Below is a list of the environments I succeeded in deploying Minecraft servers t
 -Docker on a compute instance(mc-docker-demo) <br/> <br/>
 
 
-Scripts are provided in all project directories for use with independent resources(your own cluster or VM) <br/> <br/> <br/>
+Scripts are provided in all project directories for use with independent resources(your own cluster or VM) 
 
-
+##### This repo is a summary of the work performed by Alex Snow during his internship project at IGNW during the summer of 2019 <br/> <br/> <br/> <br/>
 
 ## Getting Started <br/>
 
