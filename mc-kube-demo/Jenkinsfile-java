@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         HARBOR_ADDRESS = "172.21.6.192/"
-        KUBECONFIG_PATH = "~/.kube/kubeconfig-harbor-tenant.yaml"
+        KUBECONFIG_PATH = "/var/jenkins_home/.kube/kubeconfig-harbor-tenant.yaml"
         ///root/.kube/sa-config-test
         NAMESPACE = "minecraft"
         //default
