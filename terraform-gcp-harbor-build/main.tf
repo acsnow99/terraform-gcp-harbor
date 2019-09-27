@@ -11,8 +11,12 @@ resource "google_compute_firewall" "default" {
     
     allow {
         protocol = "tcp"
-        ports    = ["80", "443", "22"]
+        ports    = ["22"]
     }
+
+    priority = 500
+
+    target_tags = [ "harbor-runner" ]
 }
 
 module "harbor-runner-instance" {

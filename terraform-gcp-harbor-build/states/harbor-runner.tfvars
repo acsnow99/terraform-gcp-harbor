@@ -1,4 +1,4 @@
-// add definitions for region, project, 
+// edit definitions for region, project, 
 // and network to match your GCP configuration
 prefix = "harbor-runner"
 commandfile = "./resources/dockerce-install.sh"
@@ -15,3 +15,6 @@ network = "default"
 subnet = "default"
 
 machine = "n1-standard-2"
+
+
+# ALSO CHANGE resources/harbor-master-remote.tfvars WITH THE SAME INFORMATION

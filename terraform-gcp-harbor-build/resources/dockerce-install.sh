@@ -25,8 +25,9 @@ sudo mv terraform /usr/local/bin/
 
 # start running commands based on the terraform scripts on github
 cd ~/terraform_harbor
-git clone https://github.com/IGNW/terraform-gcp-harbor.git
+git clone https://github.com/acsnow99/terraform-gcp-harbor.git
 cd terraform-gcp-harbor/harbor-instance
+cp /tmp/harbor-master-remote.tfvars ./states/harbor-master-remote.tfvars
 terraform init
 yes yes | terraform apply -var-file=states/harbor-master-remote.tfvars
 

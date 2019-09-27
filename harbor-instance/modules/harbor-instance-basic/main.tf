@@ -52,6 +52,8 @@ resource "google_compute_instance" "harbor" {
     metadata = {
         ssh-keys = "${var.ssh_user}:${file("${var.ssh_public_key}")}"
     }
+
+    tags = [ "harbor-managed" ]
 }
 
 # installs Harbor and the necessary tools to install it

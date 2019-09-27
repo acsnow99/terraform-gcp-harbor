@@ -20,6 +20,8 @@ resource "google_compute_instance" "runner" {
     metadata = {
         ssh-keys = "alexsnow:${file("~/.ssh/id_rsa.pub")}"
     }
+
+    tags = [ "harbor-runner" ]
 }
 
 # provisions the runner vm with necessary scripts but does not run them
@@ -66,6 +68,10 @@ resource "null_resource" "install-harbor" {
     provisioner "file" {
         source = "${var.gcp-service-key}"
         destination = "${var.gcp-key-location}"
+    }
+    provisioner "file" {
+        source = "./resources/harbor-master-remote.tfvars"
+        destination = "/tmp/harbor-master-remote.tfvars"
     }
     provisioner "remote-exec" {
         inline = [
