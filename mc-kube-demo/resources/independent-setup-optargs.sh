@@ -1,21 +1,86 @@
 #!/bin/bash
 # base code from https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
 
-# set to true for Bedrock server
-bedrock="false"
-# 0 or 1 for Java, survival or creative for Bedrock
-gamemode="0"
-worldname="k8s"
+gamemode="0"  # Default gamemode
+worldname="k8s"  # Default worldname
 release="1.14.4"
+modpath=""
 worldtype=DEFAULT
-# URL or file path to modpack; modpack must be compatible 
-# with the provided 'release' and 'servertype'
 modpack=""
-# accepts VANILLA, FTB, or CURSEFORGE; only for Java edition
 servertype=VANILLA
-# set cf to true if type is CURSEFORGE, ftb to true for FTB
-cf="false"
-ftb="false"
+zone="us-west1-a"
+
+# Parse options to the `mc-server` command
+while getopts ":hbg:w:v:m:f:r" opt; do
+  case ${opt} in
+   h )
+     echo "
+Usage:
+
+-r Sets up a Bedrock server, ignoring these options: -vmbf
+-g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
+-w Worldname of the server
+-v Version of Minecraft to use
+-m Activates Forge; path to the mod file(.jar) required
+-b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
+-f Activates FTB; URL or path of modpack required
+
+Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
+Other Note: Using both -m and -f will only activate -m
+" 1>&2
+     exit 1
+     ;;
+   r )
+     bedrock=true
+     ;;
+   g )
+     gamemode=$OPTARG 
+     ;;
+   w )
+     worldname=$OPTARG 
+     ;;
+   v )
+     release=$OPTARG
+     ;;
+   m )
+     modded=true
+     servertype=FORGE
+     modpath=$OPTARG
+     ;;
+   b )
+     worldtype=BIOMESOP
+     ;;
+   f )
+     ftb=true
+     servertype=FTB
+     modpack=$OPTARG
+     ;;
+   \? )
+     echo "
+Invalid Option: -$OPTARG
+
+Usage:
+
+-r Sets up a Bedrock server, ignoring these options: -vmbf
+-g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
+-w Worldname of the server
+-v Version of Minecraft to use
+-m Activates Forge; path to the mod file(.jar) required
+-b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
+-f Activates FTB; URL or path of modpack required
+
+Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
+Other Note: Using both -m and -f will only activate -m
+" 1>&2
+     exit 1
+     ;;
+   : )
+     echo "Invalid option: $OPTARG requires an argument" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
 
 
 echo -e "spawn-protection=16
@@ -91,8 +156,6 @@ spec:
         value: '"${servertype}"'
       - name: FTB_SERVER_MOD
         value: '"${modpack}"'
-      - name: CF_SERVER_MOD
-        value: '"${modpack}"'
 
 ---
 
@@ -127,7 +190,7 @@ spec:
 
 
 
-if [ $bedrock = true ]
+if [ $bedrock ]
 then 
     release="1.12.0.28"
   echo "This command will create a Bedrock version '"${release}"' world titled '"${worldname}"'.
@@ -213,10 +276,10 @@ spec:
       echo "Server creation cancelled"
     fi
 else
-  if [ $cf = true ]
+  if [ $modded ]
   then
-    echo "This command will create a Forge-modded version "${release}" world titled '"${worldname}"' with the modpack at
-"${modpack}" 
+    echo "This command will create a Forge-modded version "${release}" world titled '"${worldname}"' with the mod at
+"${modpath}" 
 installed. Continue(y or n)?"
     read run
     if [ $run = y ]
@@ -230,6 +293,7 @@ installed. Continue(y or n)?"
 
       sleep 60
 
+      kubectl cp $modpath mc-server-pod-java:/data/mods/
       kubectl cp ./server.properties.provisioned mc-server-pod-java:/data/server.properties
       kubectl exec mc-server-pod-java chmod 777 server.properties
       kubectl delete pod mc-server-pod-java
@@ -246,7 +310,7 @@ Server IP Address: "
       echo "Server creation cancelled"
     fi
   else 
-    if [ $ftb = true ]
+    if [ $ftb ]
     then 
       echo "This command will create a FeedTheBeast version "${release}" world titled '"${worldname}"' with the modpack at
 "${modpack}" 

@@ -1,86 +1,26 @@
 #!/bin/bash
 # base code from https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
 
-gamemode="0"  # Default gamemode
-worldname="k8s"  # Default worldname
+privatekey="YOUR SSH PRIVATE KEY; PROBABLY ~/.ssh/id_rsa"
+user="SSH USERNAME"
+ip="IP ADDRESS OF YOUR VM"
+
+# set to true for Bedrock server
+bedrock="false"
+# 0 or 1 for Java, survival or creative for Bedrock
+gamemode="0"
+worldname="k8s"
 release="1.14.4"
 modpath=""
 worldtype=DEFAULT
+# URL or file path to modpack; modpack must be compatible 
+# with the provided 'release' and 'servertype'
 modpack=""
+# accepts VANILLA, FTB, or FORGE; only for Java edition
 servertype=VANILLA
-zone="us-west1-a"
-
-# Parse options to the `mc-server` command
-while getopts ":hbg:w:v:m:f:r" opt; do
-  case ${opt} in
-   h )
-     echo "
-Usage:
-
--r Sets up a Bedrock server, ignoring these options: -vmbf
--g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
--w Worldname of the server
--v Version of Minecraft to use
--m Activates Forge; path to the mod file(.jar) required
--b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
--f Activates FTB; URL or path of modpack required
-
-Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
-Other Note: Using both -m and -f will only activate -m
-" 1>&2
-     exit 1
-     ;;
-   r )
-     bedrock=true
-     ;;
-   g )
-     gamemode=$OPTARG 
-     ;;
-   w )
-     worldname=$OPTARG 
-     ;;
-   v )
-     release=$OPTARG
-     ;;
-   m )
-     modded=true
-     servertype=FORGE
-     modpath=$OPTARG
-     ;;
-   b )
-     worldtype=BIOMESOP
-     ;;
-   f )
-     ftb=true
-     servertype=FTB
-     modpack=$OPTARG
-     ;;
-   \? )
-     echo "
-Invalid Option: -$OPTARG
-
-Usage:
-
--r Sets up a Bedrock server, ignoring these options: -vmbf
--g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
--w Worldname of the server
--v Version of Minecraft to use
--m Activates Forge; path to the mod file(.jar) required
--b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
--f Activates FTB; URL or path of modpack required
-
-Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
-Other Note: Using both -m and -f will only activate -m
-" 1>&2
-     exit 1
-     ;;
-   : )
-     echo "Invalid option: $OPTARG requires an argument" 1>&2
-     exit 1
-     ;;
-  esac
-done
-shift $((OPTIND -1))
+# set modded to true if type is FORGE, ftb to true for FTB
+modded="false"
+ftb="false"
 
 
 echo -e "spawn-protection=16
@@ -124,271 +64,67 @@ max-build-height=256
 level-seed=
 use-native-transport=true
 prevent-proxy-connections=false
-motd=A Minecraft Server powered by K8S
-enable-rcon=true" > ./server.properties.provisioned
-
-echo 'kind: Pod
-apiVersion: v1
-metadata:
-  name: mc-server-pod-java
-  labels: 
-    app: java
-spec:
-  volumes:
-    - name: mc-world-storage
-      persistentVolumeClaim:
-        claimName: mc-claim-java
-  containers:
-    - name: mc-server-container-java
-      image: itzg/minecraft-server
-      ports:
-        - containerPort: 25565
-          name: "mc-server"
-      volumeMounts:
-        - mountPath: "/data"
-          name: mc-world-storage
-      env:
-      - name: EULA
-        value: "true"
-      - name: VERSION
-        value: '"${release}"'
-      - name: TYPE
-        value: '"${servertype}"'
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: mc-exposer-java
-  labels:
-    app: java
-spec:
-  type: LoadBalancer
-  ports:
-    - protocol: TCP
-      port: 25565
-      targetPort: 25565
-  selector: 
-    app: java
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mc-claim-java
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5G' > ./mc-pod-provisioned.yaml
+motd=A Minecraft Server powered by Docker
+enable-rcon=true" > ./resources/server.properties.provisioned
 
 
+echo "sudo apt-get update -y
+sudo apt-get install -y chrony dnsmasq dnsutils jq
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update -y
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo docker run hello-world
+# install docker compose
+sudo curl -L --fail https://github.com/docker/compose/releases/download/1.24.0/run.sh -o /usr/local/bin/docker-compose
+# executable permissions for compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-if [ $bedrock ]
-then 
-    release="1.12.0.28"
-  echo "This command will create a Bedrock version '"${release}"' world titled '"${worldname}"'.
-Continue(y or n)?"
-    read run
-    if [ $run = y ]
-    then
-      echo "Then here we go!"
+mkdir ~/minecraft || true
 
-
-
-    #ACTUAL RUN SCRIPT FOR A BEDROCK SERVER
-
-    echo -e "server-name=Alexs K8S Server\n\
-gamemode="${gamemode}"\n\
-difficulty=normal\n\
-allow-cheats=false\n\
-max-players=10\n\
-online-mode=true\n\
-white-list=false\n\
-server-port=19132\n\
-server-portv6=19133\n\
-view-distance=32\n\
-tick-distance=4\n\
-player-idle-timeout=30\n\
-max-threads=8\n\
-level-name="${worldname}"\n\
-level-seed=\n\
-default-player-permission-level=operator\n\
-texturepack-required=false" > ./server.properties.provisioned
-
-    echo 'kind: Pod
-apiVersion: v1
-metadata:
-  name: mc-server-pod-bedrock
-  labels: 
-    app: bedrock
-spec:
-  volumes:
-    - name: mc-world-storage
-      persistentVolumeClaim:
-        claimName: mc-claim-bedrock
-  containers:
-    - name: mc-server-container
-      image: itzg/minecraft-bedrock-server
-      ports:
-        - containerPort: 19132
-          name: "mc-server"
-      volumeMounts:
-        - mountPath: "/data"
-          name: mc-world-storage
-      env:
-      - name: EULA
-        value: "true"
-      - name: VERSION
-        value: '"${release}"'
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: mc-exposer-toast
-  labels:
-    app: minecraft
-    world: toast
-spec:
-  type: LoadBalancer
-  ports:
-    - protocol: UDP
-      port: 19132
-      targetPort: 19132
-  selector: 
-    app: bedrock
-
----
+cp /tmp/server.properties ~/minecraft/server.properties || true
 
 
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mc-claim-bedrock
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5G' > ./mc-pod-provisioned.yaml
+sudo docker stop mc || true
+sudo docker rm mc || true
+sudo docker run -d --name mc -p 25565:25565 -e EULA=TRUE -e VERSION=${release} -e TYPE=${server-type} -e FTB_SERVER_MOD=${modpack} -v ~/minecraft:/data itzg/minecraft-server
 
-    kubectl apply -f ./mc-pod-provisioned.yaml
-
-    sleep 120
-
-    kubectl cp ./server.properties.provisioned mc-server-pod-bedrock:/data/server.properties
-
-    kubectl exec mc-server-pod-bedrock -- /bin/sh -c 'kill 1'
+" > ./resources/minecraft-setup-provisioned.sh
 
 
+if [ $bedrock = true ]
+then
 
-    else
-      echo "Server creation cancelled"
-    fi
-else
-  if [ $modded ]
-  then
-    echo "This command will create a Forge-modded version "${release}" world titled '"${worldname}"' with the mod at
-"${modpath}" 
-installed. Continue(y or n)?"
-    read run
-    if [ $run = y ]
-    then
-      echo "Then here we go!"
+  echo "server.properties set at time of Docker run as environment variables" > ./resources/server.properties.provisioned
 
+  echo "sudo apt-get update -y
+sudo apt-get install -y chrony dnsmasq dnsutils jq
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update -y
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo docker run hello-world
+# install docker compose
+sudo curl -L --fail https://github.com/docker/compose/releases/download/1.24.0/run.sh -o /usr/local/bin/docker-compose
+# executable permissions for compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-  # ACTUAL RUN SCRIPT FOR MODDED SERVER
-
-      kubectl apply -f ./mc-pod-provisioned.yaml
-
-      sleep 180
-
-      kubectl cp $modpath mc-server-pod-java:/data/mods/
-      kubectl cp ./server.properties.provisioned mc-server-pod-java:/data/server.properties
-      kubectl exec mc-server-pod-java chmod 777 server.properties
-      kubectl exec mc-server-pod-java rcon-cli stop
-
-      echo "Creation complete, please wait for the server to configure.
-Server IP Address: "
-      kubectl get svc mc-exposer-java -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
-      echo ""
+mkdir ~/minecraft || true
 
 
+sudo docker stop mc || true
+sudo docker rm mc || true
+sudo docker run -d --name mc -p 25565:25565 -e EULA=TRUE -e VERSION=${release} -e LEVEL_NAME=${worldname} -e GAMEMODE=${gamemode} -v ~/minecraft:/data itzg/minecraft-bedrock-server
 
-    else
-      echo "Server creation cancelled"
-    fi
-  else 
-    if [ $ftb ]
-    then 
-      echo "This command will create a FeedTheBeast version "${release}" world titled '"${worldname}"' with the modpack at
-"${modpack}" 
-installed. Continue(y or n)?"
-      read run
-      if [ $run = y ]
-      then
-        echo "Then here we go!"
+" > ./resources/minecraft-setup-provisioned.sh
 
-
-  # ACTUAL RUN SCRIPT FOR FTB SERVER
-
-        kubectl apply -f ./mc-pod-provisioned.yaml
-
-        sleep 400
-
-        kubectl cp server.properties.provisioned mc-server-pod-java:/data/FeedTheBeast/server.properties
-        kubectl exec mc-server-pod-java chmod 777 /data/FeedTheBeast/server.properties
-        kubectl exec mc-server-pod-java rcon-cli stop
-
-        echo "Creation complete, please wait for the server to configure.
-Server IP Address: "
-        kubectl get svc mc-exposer-java -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
-        echo ""
-
-
-
-      else
-        echo "Server creation cancelled"
-      fi
-    else 
-      echo "This command will create a vanilla version "${release}" world titled '"${worldname}".' Continue(y or n)?"
-      read run
-      if [ $run = y ]
-      then
-        echo "Then here we go!"
-
-
-  # ACTUAL RUN SCRIPT FOR VANILLA SERVER
-        
-        kubectl apply -f ./mc-pod-provisioned.yaml
-
-
-        sleep 150
-
-        kubectl cp server.properties.provisioned mc-server-pod-java:/data/server.properties
-        kubectl exec mc-server-pod-java chmod 777 server.properties
-        kubectl exec mc-server-pod-java rcon-cli stop
-
-        echo "Creation complete, please wait for the server to configure.
-Server IP Address: "
-        kubectl get svc mc-exposer-java -o jsonpath="{.status.loadBalancer.ingress[*].ip}"
-        echo ""
-
-
-
-      else
-        echo "Server creation cancelled"
-      fi
-    fi
-  fi
 fi
 
-rm mc-pod-provisioned.yaml
-rm server.properties.provisioned
+
+
+scp -i $privatekey -o StrictHostKeyChecking=no resources/minecraft-setup-provisioned.sh $user@$ip:/tmp/minecraft-setup.sh
+scp -i $privatekey -o StrictHostKeyChecking=no resources/server.properties.provisioned $user@$ip:/tmp/server.properties
+
+ssh -i $privatekey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip bash /tmp/minecraft-setup.sh

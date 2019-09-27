@@ -1,21 +1,85 @@
 #!/bin/bash
 # base code from https://sookocheff.com/post/bash/parsing-bash-script-arguments-with-shopts/
 
-# set to true for Bedrock server
-bedrock="false"
-# 0 or 1 for Java, survival or creative for Bedrock
-gamemode="0"
-worldname="k8s"
+gamemode="0"  # Default gamemode
+worldname="k8s"  # Default worldname
 release="1.14.4"
+modpath=""
 worldtype=DEFAULT
-# URL or file path to modpack; modpack must be compatible 
-# with the provided 'release' and 'servertype'
 modpack=""
-# accepts VANILLA, FTB, or CURSEFORGE; only for Java edition
 servertype=VANILLA
-# set cf to true if type is CURSEFORGE, ftb to true for FTB
-cf="false"
-ftb="false"
+
+# Parse options to the `mc-server` command
+while getopts ":hbg:w:v:m:f:r" opt; do
+  case ${opt} in
+   h )
+     echo "
+Usage:
+
+-r Sets up a Bedrock server, ignoring these options: -vmbf
+-g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
+-w Worldname of the server
+-v Version of Minecraft to use
+-m Activates Forge; path to the mod file(.jar) required
+-b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
+-f Activates FTB; URL or path of modpack required
+
+Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
+Other Note: Using both -m and -f will only activate -m
+" 1>&2
+     exit 1
+     ;;
+   r )
+     bedrock=true
+     ;;
+   g )
+     gamemode=$OPTARG 
+     ;;
+   w )
+     worldname=$OPTARG 
+     ;;
+   v )
+     release=$OPTARG
+     ;;
+   m )
+     modded=true
+     servertype=FORGE
+     modpath=$OPTARG
+     ;;
+   b )
+     worldtype=BIOMESOP
+     ;;
+   f )
+     ftb=true
+     servertype=FTB
+     modpack=$OPTARG
+     ;;
+   \? )
+     echo "
+Invalid Option: -$OPTARG
+
+Usage:
+
+-r Sets up a Bedrock server, ignoring these options: -vmbf
+-g Gamemode of the server(0 or 1 on Java; survival or creative on Bedrock)
+-w Worldname of the server
+-v Version of Minecraft to use
+-m Activates Forge; path to the mod file(.jar) required
+-b Creates a Biomes 'O' Plenty world if -m is also called and the modpath points to the Biomes 'O' Plenty mod file
+-f Activates FTB; URL or path of modpack required
+
+Note: Make sure the modpacks and mods match the version of Minecraft under the -v flag
+Other Note: Using both -m and -f will only activate -m
+" 1>&2
+     exit 1
+     ;;
+   : )
+     echo "Invalid option: $OPTARG requires an argument" 1>&2
+     exit 1
+     ;;
+  esac
+done
+shift $((OPTIND -1))
 
 
 echo -e "spawn-protection=16
@@ -60,7 +124,7 @@ level-seed=
 use-native-transport=true
 prevent-proxy-connections=false
 motd=A Minecraft Server powered by K8S
-enable-rcon=true" > ./resources/server.properties.provisioned
+enable-rcon=true" > ./server.properties.provisioned
 
 echo 'kind: Pod
 apiVersion: v1
@@ -89,10 +153,6 @@ spec:
         value: '"${release}"'
       - name: TYPE
         value: '"${servertype}"'
-      - name: FTB_SERVER_MOD
-        value: '"${modpack}"'
-      - name: CF_SERVER_MOD
-        value: '"${modpack}"'
 
 ---
 
@@ -123,11 +183,11 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 5G' > ./resources/mc-pod-provisioned.yaml
+      storage: 5G' > ./mc-pod-provisioned.yaml
 
 
 
-if [ $bedrock = true ]
+if [ $bedrock ]
 then 
     release="1.12.0.28"
   echo "This command will create a Bedrock version '"${release}"' world titled '"${worldname}"'.
@@ -141,6 +201,23 @@ Continue(y or n)?"
 
     #ACTUAL RUN SCRIPT FOR A BEDROCK SERVER
 
+    echo -e "server-name=Alexs K8S Server\n\
+gamemode="${gamemode}"\n\
+difficulty=normal\n\
+allow-cheats=false\n\
+max-players=10\n\
+online-mode=true\n\
+white-list=false\n\
+server-port=19132\n\
+server-portv6=19133\n\
+view-distance=32\n\
+tick-distance=4\n\
+player-idle-timeout=30\n\
+max-threads=8\n\
+level-name="${worldname}"\n\
+level-seed=\n\
+default-player-permission-level=operator\n\
+texturepack-required=false" > ./server.properties.provisioned
 
     echo 'kind: Pod
 apiVersion: v1
@@ -167,17 +244,13 @@ spec:
         value: "true"
       - name: VERSION
         value: '"${release}"'
-      - name: GAMEMODE
-        value: '"${gamemode}"'
-      - name: LEVEL_NAME
-        value: '"${worldname}"'
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: mc-exposer-bedrock
+  name: mc-exposer-toast
   labels:
     app: minecraft
     world: toast
@@ -203,9 +276,15 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 5G' > ./resources/mc-pod-provisioned.yaml
+      storage: 5G' > ./mc-pod-provisioned.yaml
 
-    kubectl apply -f ./resources/mc-pod-provisioned.yaml
+    kubectl apply -f ./mc-pod-provisioned.yaml
+
+    sleep 120
+
+    kubectl cp ./server.properties.provisioned mc-server-pod-bedrock:/data/server.properties
+
+    kubectl exec mc-server-pod-bedrock -- /bin/sh -c 'kill 1'
 
 
 
@@ -213,10 +292,10 @@ spec:
       echo "Server creation cancelled"
     fi
 else
-  if [ $cf = true ]
+  if [ $modded ]
   then
-    echo "This command will create a Forge-modded version "${release}" world titled '"${worldname}"' with the modpack at
-"${modpack}" 
+    echo "This command will create a Forge-modded version "${release}" world titled '"${worldname}"' with the mod at
+"${modpath}" 
 installed. Continue(y or n)?"
     read run
     if [ $run = y ]
@@ -226,14 +305,14 @@ installed. Continue(y or n)?"
 
   # ACTUAL RUN SCRIPT FOR MODDED SERVER
 
-      kubectl apply -f ./resources/mc-pod-provisioned.yaml
+      kubectl apply -f ./mc-pod-provisioned.yaml
 
-      sleep 60
+      sleep 180
 
+      kubectl cp $modpath mc-server-pod-java:/data/mods/
       kubectl cp ./server.properties.provisioned mc-server-pod-java:/data/server.properties
       kubectl exec mc-server-pod-java chmod 777 server.properties
-      kubectl delete pod mc-server-pod-java
-      kubectl apply -f ./resources/mc-pod-provisioned.yaml
+      kubectl exec mc-server-pod-java rcon-cli stop
 
       echo "Creation complete, please wait for the server to configure.
 Server IP Address: "
@@ -246,7 +325,7 @@ Server IP Address: "
       echo "Server creation cancelled"
     fi
   else 
-    if [ $ftb = true ]
+    if [ $ftb ]
     then 
       echo "This command will create a FeedTheBeast version "${release}" world titled '"${worldname}"' with the modpack at
 "${modpack}" 
@@ -259,16 +338,13 @@ installed. Continue(y or n)?"
 
   # ACTUAL RUN SCRIPT FOR FTB SERVER
 
-        kubectl apply -f ./resources/mc-pod-provisioned.yaml
+        kubectl apply -f ./mc-pod-provisioned.yaml
 
-        sleep 60
+        sleep 400
 
-        #kubectl exec mc-server-pod-java rm /data/FeedTheBeast/server.properties
-        kubectl exec mc-server-pod-java mkdir /data/FeedTheBeast
-        kubectl cp ./resources/server.properties.provisioned mc-server-pod-java:/data/FeedTheBeast/server.properties
+        kubectl cp server.properties.provisioned mc-server-pod-java:/data/FeedTheBeast/server.properties
         kubectl exec mc-server-pod-java chmod 777 /data/FeedTheBeast/server.properties
-        kubectl delete pod mc-server-pod-java
-        kubectl apply -f ./resources/mc-pod-provisioned.yaml
+        kubectl exec mc-server-pod-java rcon-cli stop
 
         echo "Creation complete, please wait for the server to configure.
 Server IP Address: "
@@ -290,14 +366,14 @@ Server IP Address: "
 
   # ACTUAL RUN SCRIPT FOR VANILLA SERVER
         
-        kubectl apply -f ./resources/mc-pod-provisioned.yaml
+        kubectl apply -f ./mc-pod-provisioned.yaml
 
-        sleep 60
 
-        kubectl cp ./resources/server.properties.provisioned mc-server-pod-java:/data/server.properties
+        sleep 150
+
+        kubectl cp server.properties.provisioned mc-server-pod-java:/data/server.properties
         kubectl exec mc-server-pod-java chmod 777 server.properties
-        kubectl delete pod mc-server-pod-java
-        kubectl apply -f ./resources/mc-pod-provisioned.yaml
+        kubectl exec mc-server-pod-java rcon-cli stop
 
         echo "Creation complete, please wait for the server to configure.
 Server IP Address: "
@@ -312,3 +388,6 @@ Server IP Address: "
     fi
   fi
 fi
+
+rm mc-pod-provisioned.yaml
+rm server.properties.provisioned
