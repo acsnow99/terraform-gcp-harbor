@@ -2,7 +2,7 @@
 
 Setting up a simple Minecraft server on a VM using Docker. This utilizes the Docker image itzg/minecraft-server and the additional itzg/minecraft-bedrock-server for players that do not use Java edition
 
-##### Note: '.' represents 'mc-docker-demo'(this directory) in all path definitions in the tutorials. cd into 'harbor-instance' on your local machine for these tutorials
+##### Note: '.' represents 'mc-docker-demo'(this directory) in all path definitions in the tutorials. cd into 'mc-docker-demo' on your local machine for these tutorials
 
 ### Deploying Minecraft to GCP using Terraform(requires GCP account)
 
