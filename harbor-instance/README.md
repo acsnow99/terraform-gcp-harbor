@@ -12,7 +12,7 @@ Step 1: Edit './states/harbor-master.tfvars' to fit your GCP configuration <br/>
 Step 2: Take a look at '/etc/hosts' and make sure you don't have any entries for the Harbor URL you chose. Multiple entries would confuse your computer later on when trying to access Harbor. Either delete existing entries or put a different URL for your Harbor instance in the .tfvars file(var.hostname). 
 ##### Note: the scripts that Terraform runs will make an edit to your '/etc/hosts' file. It will make a copy beforehand, so if something goes wrong with that file, the copy will be located under './hosts-copy' <br/> <br/>
 
-Step 3: Run 'terraform apply -var-file=./states/harbor-master.tfvars'
+Step 3: Run 'terraform init' and 'terraform apply -var-file=./states/harbor-master.tfvars'
 
 ##### Note: If Terraform gets stuck for more than 2 mins or an error occurs during the local-exec step, ctrl+C out of the terraform apply, and run bash './resources/local-setup-provisioned.sh' to re-try the local-exec step <br/> <br/>
 
