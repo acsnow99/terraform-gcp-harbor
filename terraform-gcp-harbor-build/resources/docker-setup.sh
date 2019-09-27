@@ -3,6 +3,7 @@
 # CHANGE THESE
 user="alexsnow"
 
+
 yes yes | terraform apply -var-file=states/harbor-runner.tfvars
 
 # get the ip address from the terraform output into the rest of the script
@@ -11,6 +12,7 @@ ip=$(terraform output | tr -d "instance-ip = -")
 # get the cert from the instance(on Mac)
 scp -i /home/alexsnow/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip:~/terraform_harbor/terraform-gcp-harbor-instance/ip.txt .
 ip2=$(cat ip.txt)
+echo "$ip2 $hostname"
 scp -i /home/alexsnow/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip:/etc/docker/certs.d/$ip2/ca.crt .
 
 sudo mkdir ~/.docker/certs.d/$ip2

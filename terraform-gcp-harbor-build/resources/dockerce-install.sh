@@ -39,10 +39,10 @@ echo "$ip core.harbor.domain" | sudo tee -a /etc/hosts
 # get the cert from the instance
 scp -i /home/alexsnow/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v alexsnow@$ip:~/ca.crt .
 sudo mkdir /etc/docker/certs.d
-sudo mkdir /etc/docker/certs.d/$ip
-sudo mv ca.crt /etc/docker/certs.d/$ip/ca.crt
+sudo mkdir /etc/docker/certs.d/core.harbor.domain
+sudo mv ca.crt /etc/docker/certs.d/core.harbor.domain/ca.crt
 
 # login to docker and push a test image
-sudo docker login --username admin --password Harbor12345 $ip
-sudo docker tag hello-world:latest $ip/library/hello-world:latest
-sudo docker push $ip/library/hello-world:latest
+sudo docker login --username admin --password Harbor12345 core.harbor.domain
+sudo docker tag hello-world:latest core.harbor.domain/library/hello-world:latest
+sudo docker push core.harbor.domain/library/hello-world:latest

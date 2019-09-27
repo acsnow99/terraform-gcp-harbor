@@ -11,9 +11,9 @@ sudo curl -L --fail https://github.com/docker/compose/releases/download/1.24.0/r
 # executable permissions for compose
 sudo chmod +x /usr/local/bin/docker-compose
 
-openssl req -newkey rsa:4096 -nodes -sha256 -keyout ca.key -x509 -days 3650 -out ca.crt -subj "/C=US/ST=Oregon/L=Portland/0=IGNW/OU=Devops/CN=${hostname}"
-openssl req -newkey rsa:4096 -nodes -sha256 -keyout harbor.gcp.key -out harbor.gcp.csr -subj "/C=US/ST=Oregon/L=Portland/0=IGNW/OU=Devops/CN=${hostname}"
-openssl x509 -req -days 3650 -in harbor.gcp.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out harbor.gcp.crt
+sudo openssl req -newkey rsa:4096 -nodes -sha256 -keyout ca.key -x509 -days 3650 -out ca.crt -subj "/C=US/ST=Oregon/L=Portland/0=IGNW/OU=Devops/CN=${hostname}"
+sudo openssl req -newkey rsa:4096 -nodes -sha256 -keyout harbor.gcp.key -out harbor.gcp.csr -subj "/C=US/ST=Oregon/L=Portland/0=IGNW/OU=Devops/CN=${hostname}"
+sudo openssl x509 -req -days 3650 -in harbor.gcp.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out harbor.gcp.crt
 sudo mkdir etc/ssl/certs
 sudo cp *.crt *.key /etc/ssl/certs
 
