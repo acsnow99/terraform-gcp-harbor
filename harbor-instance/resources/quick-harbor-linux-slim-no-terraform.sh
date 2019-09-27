@@ -169,25 +169,21 @@ scp -i $privatekey -o StrictHostKeyChecking=no resources/harbor-install-provisio
 ssh -i $privatekey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip bash /tmp/harbor-install.sh
 
 
-
 # get the cert from the instance
-scp -i $privatekey -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip:~/ca.crt .
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -v $user@$ip:~/ca.crt .
+# Refresh the list of certificates to trust
+mkdir /etc/docker/certs.d/$hostname
+mv ca.crt /etc/docker/certs.d/$hostname/ca.crt
 
-# trust the cert
-sudo mkdir ~/.docker/certs.d
-sudo mkdir ~/.docker/certs.d/$hostname
-sudo mv ca.crt ~/.docker/certs.d/$hostname/ca.crt
+echo "$ip $hostname" >> /etc/hosts
 
-
-sudo cp /etc/hosts ./hosts-copy
-echo "$ip $hostname" | sudo tee -a /etc/hosts
-
-killall Docker && open /Applications/Docker.app
+# Restart the Docker daemon
+service docker restart
 
 sleep 60
 
-# login to harbor through docker and push a test image
-sudo docker login --username admin --password Harbor12345 $hostname
-sudo docker pull hello-world
-sudo docker tag hello-world:latest $hostname/library/hello-world:latest
-sudo docker push $hostname/library/hello-world:latest
+# login to docker and push a test image
+docker login --username admin --password Harbor12345 $hostname
+docker pull hello-world
+docker tag hello-world:latest $hostname/library/hello-world:latest
+docker push $hostname/library/hello-world:latest
