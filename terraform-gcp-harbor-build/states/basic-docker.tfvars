@@ -1,3 +1,4 @@
+# this configuration will set up a simple instance with Docker on it
 prefix = "basic-docker-runner"
 commandfile = "./resources/just-dockerce-install.sh"
 credentials-file = "~/terraform/terraform_keys/terraform-gcp-harbor-2-45311dea3003.json"

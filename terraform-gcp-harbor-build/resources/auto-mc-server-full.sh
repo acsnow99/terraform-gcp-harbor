@@ -1,3 +1,5 @@
+# For a better way to do the same thing this script does, see mc-docker-demo
+
 gamemode="0"
 worldname="GCP"
 version="1.14.4"
