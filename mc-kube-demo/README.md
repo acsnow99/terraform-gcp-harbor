@@ -1,4 +1,4 @@
-## mc-kubec-demo
+## mc-kube-demo
 
 Setting up a simple Minecraft server on a Kubernetes cluster. This utilizes the Docker image itzg/minecraft-server and the additional itzg/minecraft-bedrock-server for players that do not use Java edition
 
