@@ -72,7 +72,7 @@ resource "null_resource" "install-harbor" {
         destination = "/tmp/harbor-config.yml"
     }
     provisioner "file" {
-        source = "${var.commandfile}"
+        content = "${data.template_file.commandfile.rendered}"
         destination = "/tmp/run-command.sh"
     }
     provisioner "remote-exec" {
