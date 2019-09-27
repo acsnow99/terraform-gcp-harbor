@@ -2,7 +2,7 @@
 
 Setting up a simple Minecraft server on a Kubernetes cluster. This utilizes the Docker image itzg/minecraft-server and the additional itzg/minecraft-bedrock-server for players that do not use Java edition
 
-##### Note: '.' represents 'mc-kube-demo'(this directory) in all path definitions in the tutorials. cd into 'harbor-instance' on your local machine for these tutorials
+##### Note: '.' represents 'mc-kube-demo'(this directory) in all path definitions in the tutorials. cd into 'mc-kube-demo' on your local machine for these tutorials
 
 ### Deploying Minecraft to GKE using Terraform(requires GCP account)
 
