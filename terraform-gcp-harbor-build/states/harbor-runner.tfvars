@@ -2,12 +2,15 @@
 // and network to match your GCP configuration
 prefix = "harbor-runner"
 commandfile = "./resources/dockerce-install.sh"
+
+# your service account key file
 credentials-file = "~/terraform/terraform_keys/terraform-gcp-harbor-2-45311dea3003.json"
 
 # this means the resulting machine will automatically run the script provided under commandfile
 layer-2 = "1"
 
-gcp-service-key = "~/terraform/terraform_keys/terraform-gcp-harbor-2-45311dea3003.json"
+# a service account key file with at least compute engine and networking access
+gcp-service-key = "~/terraform/terraform_keys/terraform-gcp-harbor-2-766oie02lnse.json"
 
 project = "terraform-gcp-harbor-2"
 

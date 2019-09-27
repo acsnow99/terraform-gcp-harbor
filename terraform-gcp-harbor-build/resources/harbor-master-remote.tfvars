@@ -1,6 +1,6 @@
+### This file will be run on the second VM, so avoid editing the items underneath NOT NECESSARY TO CHANGE
+
 ## CHANGE THESE
-# access key file to GCP
-credentials-file = "~/terraform_harbor/terraform_key.json"
 
 # your name, according to your ssh keys
 ssh_user = "alexsnow"
@@ -38,6 +38,9 @@ configfile = "resources/harbor-master.yml"
 machine = "n1-standard-2"
 # OS image to use
 image = "ubuntu-1604-xenial-v20190617"
+
+# access key file to GCP
+credentials-file = "~/terraform_harbor/terraform_key.json"
 
 # your ssh keys
 ssh_public_key = "~/.ssh/id_rsa.pub"
