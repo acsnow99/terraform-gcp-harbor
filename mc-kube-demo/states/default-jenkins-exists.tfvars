@@ -43,7 +43,7 @@ ftb-modpack = "https://www.feed-the-beast.com/projects/ftb-presents-direwolf20-1
 # 1 if from an existing world on your local machine
 exists = "1"
 # path to the existing world files. If Bedrock, point to the 'db' directory inside the world directory.
-existing-world = "./Sigma"
+existing-world = "./resources/Sigma"
 
 
 harbor = "2"
