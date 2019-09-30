@@ -5,9 +5,8 @@ node('docker') {
 
     stage 'Clear Environment'
         sh "cd mc-kube-demo && terraform init"
-        sh "yes yes | terraform destroy -var-file=states/default-jenkins.tfvars -target=module.provisioner"
+        sh "cd mc-kube-demo && yes yes | terraform destroy -var-file=states/default-jenkins.tfvars -target=module.provisioner"
 
     stage 'Integration Test'
-        sh "cd mc-kube-demo"
-        sh "yes yes | terraform apply -var-file=states/default-jenkins.tfvars"
+        sh "cd mc-kube-demo && yes yes | terraform apply -var-file=states/default-jenkins.tfvars"
 }
