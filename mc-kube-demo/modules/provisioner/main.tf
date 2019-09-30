@@ -69,7 +69,7 @@ resource "null_resource" "world-setup" {
 
     count = "${var.exists}"
 
-    depends_on = [     "null_resource.deploy-with-server-properties"]
+    depends_on = ["null_resource.deploy-with-server-properties"]
     #"null_resource.add-world",
 
     provisioner "local-exec" {
