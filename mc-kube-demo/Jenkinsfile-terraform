@@ -4,9 +4,7 @@ node('docker') {
         checkout scm
 
     stage 'Clear Environment'
-        sh "sleep 15"
-        sh "cd mc-kube-demo"
-        sh "terraform init"
+        sh "cd mc-kube-demo && terraform init"
         sh "yes yes | terraform destroy -var-file=states/default-jenkins.tfvars -target=module.provisioner"
 
     stage 'Integration Test'
